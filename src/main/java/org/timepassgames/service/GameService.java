@@ -7,13 +7,13 @@ import java.util.List;
 
 public interface GameService {
 
-    public Game addGame(GameDto game);
+    public GameDto addGame(GameDto game);
 
-    public List<Game> findAllGames();
+    public List<GameDto> findAllGames();
 
-    public Game getGameByGameName(String gameName);
+    public GameDto getGameByGameName(String gameName);
 
-    public Game updateGame(GameDto gameRequest);
+    public GameDto updateGame(GameDto gameRequest);
 
     public String deleteGame(String gameName);
 
