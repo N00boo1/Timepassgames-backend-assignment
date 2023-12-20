@@ -1,0 +1,5 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb+srv://rahul:rahul@svg.auytpk9.mongodb.net/?retryWrites=true&w=majority
+      database: Game
