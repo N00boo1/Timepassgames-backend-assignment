@@ -1,0 +1,15 @@
+org\timepassgames\exceptions\FieldNotValidException.class
+org\timepassgames\gameMapper\GameMapper.class
+org\timepassgames\dto\GameDto$GameDtoBuilder.class
+org\timepassgames\dto\GameDto.class
+org\timepassgames\exceptions\ErrorResponse.class
+org\timepassgames\TimePassGames.class
+org\timepassgames\service\GameService.class
+org\timepassgames\exceptions\GlobalExceptionHandler.class
+org\timepassgames\service\GameServiceImpl.class
+org\timepassgames\controller\GameController.class
+org\timepassgames\model\Game.class
+org\timepassgames\repository\GameRepository.class
+org\timepassgames\exceptions\ResourceNotFoundException.class
+org\timepassgames\model\Game$GameBuilder.class
+org\timepassgames\exceptions\ResourceAlreadyExistsException.class
