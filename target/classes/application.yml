@@ -4,3 +4,8 @@ spring:
       uri: mongodb+srv://r:r@svg.agk9eiu.mongodb.net/?retryWrites=true&w=majority
       database: Game
       auto-index-creation: true
+springdoc:
+  openapi-ui:
+    path: /swagger-ui.html  # Specify the Swagger UI path if needed
+    server:
+      url: https://timepassgames.onrender.com
