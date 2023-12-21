@@ -1,12 +1,10 @@
 package org.timepassgames.repository;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.timepassgames.model.Game;
 
 import java.util.List;
@@ -127,4 +125,49 @@ public class GameRepositoryTest {
         assertThat(deletedGame).isEmpty();
     }
 
+    @Test
+    void givenUrlAndNameNotExists_whenExistsByUrlAndNameNot_thenTrue() {
+        // Given: Setup object or precondition
+        Game game1 = Game.builder()
+                .id("testId1")
+                .name("test1")
+                .url("test1.com")
+                .author("dummyUser")
+                .publishedDate("testDate")
+                .build();
+
+        gameRepository.save(game1);
+
+        // When: Action or behavior we are going to test
+        boolean exists = gameRepository.existsByUrlAndNameNot("test1.com", "test");
+
+        // Then: Verify the output
+        assertThat(exists).isTrue();
+
+        // Clean up
+        gameRepository.deleteByName(game1.getName());
+    }
+
+    @Test
+    void givenUrlAndNameDoesNotExist_whenExistsByUrlAndNameNot_thenFalse() {
+        // Given: Setup object or precondition
+        Game game2 = Game.builder()
+                .id("testId2")
+                .name("test2")
+                .url("test2.com")
+                .author("dummyUser")
+                .publishedDate("testDate")
+                .build();
+
+        gameRepository.save(game2);
+
+        // When: Action or behavior we are going to test
+        boolean exists = gameRepository.existsByUrlAndNameNot("test2.com", "test2");
+
+        // Then: Verify the output
+        assertThat(exists).isFalse();
+
+        // Clean up
+        gameRepository.deleteByName(game2.getName());
+    }
 }

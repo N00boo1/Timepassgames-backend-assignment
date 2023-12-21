@@ -1,7 +1,11 @@
 package org.timepassgames.service;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.timepassgames.exceptions.FieldNotValidException;
+import org.timepassgames.exceptions.ResourceAlreadyExistsException;
 import org.timepassgames.gameMapper.GameMapper;
 import org.timepassgames.dto.GameDto;
 import org.timepassgames.exceptions.ResourceNotFoundException;
@@ -17,64 +21,104 @@ public class GameServiceImpl implements GameService {
     @Autowired
     private GameRepository repository;
 
+    // Constructor to inject GameRepository dependency
     public GameServiceImpl(GameRepository gameRepository) {
-        this.repository=gameRepository;
+        this.repository = gameRepository;
     }
 
+    // Private method to validate GameDto fields
+    private void validateGameDto(GameDto gameDto) {
+        validateFieldNotEmpty(gameDto.getName(), "name");
+        validateFieldNotEmpty(gameDto.getUrl(), "url");
+    }
+
+    // Private method to validate if a field is not empty
+    private void validateFieldNotEmpty(String value, String fieldName) {
+        if (StringUtils.isEmpty(value)) {
+            throw new FieldNotValidException(fieldName, "Game");
+        }
+    }
+
+    // Method to add a new game to the database
     public GameDto addGame(GameDto gameDto) {
-        Game game= GameMapper.mapToGame(gameDto);
+        validateGameDto(gameDto);
 
-        Game savedGame=repository.save(game);
-
-        GameDto savedGameDto=GameMapper.mapToGameDto(savedGame);
-
-        return savedGameDto;
+        try {
+            Game game = GameMapper.mapToGame(gameDto);
+            Game savedGame = repository.save(game);
+            return GameMapper.mapToGameDto(savedGame);
+        } catch (DuplicateKeyException e) {
+            throw new ResourceAlreadyExistsException("Game", gameDto.getName(), gameDto.getUrl());
+        } catch(Exception e) {
+            throw new RuntimeException("An unexpected error occurred.", e);
+        }
     }
 
+    // Method to retrieve all games from the database
     public List<GameDto> findAllGames() {
-        List<Game> games=repository.findAll();
-
-        return games.stream().map(GameMapper::mapToGameDto)
-                .collect(Collectors.toList());
+        try {
+            List<Game> games = repository.findAll();
+            return games.stream().map(GameMapper::mapToGameDto)
+                    .collect(Collectors.toList());
+        } catch(Exception e) {
+            throw new RuntimeException("An unexpected error occurred.", e);
+        }
     }
 
+    // Method to retrieve a game by its name from the database
     public GameDto getGameByGameName(String gameName) {
-
         try {
             Game game = repository.findByName(gameName);
 
-            return GameMapper.mapToGameDto(game);
-        } catch (Exception e) {
-            throw new ResourceNotFoundException("Game","name",gameName);
-        }
+            if (game == null) {
+                throw new ResourceNotFoundException("Game", "name", gameName);
+            }
 
+            return GameMapper.mapToGameDto(game);
+        } catch(ResourceNotFoundException e) {
+            throw  e;
+        } catch (Exception e) {
+            // Handle any other exceptions or log them if needed
+            throw new RuntimeException("An unexpected error occurred.", e);
+        }
     }
 
+    // Method to update an existing game in the database
     public GameDto updateGame(GameDto gameRequest) {
-        // get the existing game from the db
-        // populate new value from request to existing object
+        validateGameDto(gameRequest);
 
         try {
-            Game existingGame = repository.findByName(gameRequest.getName());
+            Game existingGame = GameMapper.mapToGame(getGameByGameName(gameRequest.getName()));
+            if (repository.existsByUrlAndNameNot(gameRequest.getUrl(), gameRequest.getName())) {
+                throw new ResourceAlreadyExistsException("Game", gameRequest.getName(), gameRequest.getUrl());
+            }
             existingGame.setAuthor(gameRequest.getAuthor());
             existingGame.setUrl(gameRequest.getUrl());
             existingGame.setPublishedDate(gameRequest.getPublishedDate());
+
             repository.deleteByName(gameRequest.getName());
 
             Game updatedGame = repository.save(existingGame);
             return GameMapper.mapToGameDto(updatedGame);
-        } catch (Exception e) {
-            throw new ResourceNotFoundException("Game","name",gameRequest.getName());
+        } catch (ResourceNotFoundException e) {
+            throw e; // Re-throw the ResourceNotFoundException to maintain specific exception type
+        } catch (DuplicateKeyException e) {
+            throw new ResourceAlreadyExistsException("Game", gameRequest.getName(), gameRequest.getUrl());
+        } catch(Exception e) {
+            throw new RuntimeException("An unexpected error occurred.", e);
         }
     }
 
+    // Method to delete a game from the database by its name
     public String deleteGame(String gameName) {
-        Game game=repository.findByName(gameName);
-        if(game==null)
-            throw new ResourceNotFoundException("Game","name",gameName);
-        repository.deleteByName(gameName);
-        return gameName + " game deleted from the database";
-
+        try {
+            Game existingGame = GameMapper.mapToGame(getGameByGameName(gameName));
+            repository.deleteByName(gameName);
+            return gameName + " game deleted from the database";
+        } catch (ResourceNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("An unexpected error occurred.", e);
+        }
     }
-
 }
