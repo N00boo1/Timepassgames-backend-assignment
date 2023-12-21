@@ -16,6 +16,10 @@ public class GameController {
     @Autowired
     private GameService gameService;
 
+    public GameController(GameService gameService) {
+        this.gameService=gameService;
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<GameDto> createGame(@RequestBody GameDto game) {

@@ -1,4 +1,4 @@
-package org.timepassgames.GameMapper;
+package org.timepassgames.gameMapper;
 
 import org.timepassgames.dto.GameDto;
 import org.timepassgames.model.Game;

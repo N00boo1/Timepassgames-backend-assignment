@@ -2,7 +2,7 @@ package org.timepassgames.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.timepassgames.GameMapper.GameMapper;
+import org.timepassgames.gameMapper.GameMapper;
 import org.timepassgames.dto.GameDto;
 import org.timepassgames.exceptions.ResourceNotFoundException;
 import org.timepassgames.model.Game;
@@ -16,6 +16,10 @@ public class GameServiceImpl implements GameService {
 
     @Autowired
     private GameRepository repository;
+
+    public GameServiceImpl(GameRepository gameRepository) {
+        this.repository=gameRepository;
+    }
 
     public GameDto addGame(GameDto gameDto) {
         Game game= GameMapper.mapToGame(gameDto);
