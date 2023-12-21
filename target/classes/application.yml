@@ -4,3 +4,7 @@ spring:
       uri: mongodb+srv://r:r@svg.agk9eiu.mongodb.net/?retryWrites=true&w=majority
       database: Game
       auto-index-creation: true
+springfox:
+  documentation:
+    swagger-ui:
+      base-url: https://timepassgames.onrender.com
